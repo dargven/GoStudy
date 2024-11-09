@@ -1,7 +1,9 @@
 package main
 
 import (
+	"GoStudy/internal/Storage/sqlite"
 	"GoStudy/internal/config"
+	"GoStudy/internal/lib/logger/sl"
 	"log/slog"
 	"os"
 )
@@ -18,6 +20,10 @@ func main() {
 	log = log.With(slog.String("env", cfg.Env))                          //к каждому сообщению будет добавляться поле с информацией о текущем окружении
 	log.Info("initializing server", slog.String("address", cfg.Address)) // Помимо сообщения выведем параметр с адресом
 	log.Debug("logger debug mode enabled")
+	storage, err := sqlite.New(cfg.StoragePath)
+	if err != nil {
+		log.Error("failed to initialize storage", sl.Err(err))
+	}
 }
 
 func setupLogger(env string) *slog.Logger {
