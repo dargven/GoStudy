@@ -4,6 +4,8 @@ import (
 	"GoStudy/internal/Storage/sqlite"
 	"GoStudy/internal/config"
 	"GoStudy/internal/lib/logger/sl"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"log/slog"
 	"os"
 )
@@ -24,6 +26,13 @@ func main() {
 	if err != nil {
 		log.Error("failed to initialize storage", sl.Err(err))
 	}
+
+	router := chi.NewRouter()
+	router.Use(middleware.RequestID) // Добавляет request_id в каждый запрос, для трейсинга(понимания сколько выполняется каждый запрос)
+	router.Use(middleware.Logger)
+	//Разобраться как подключить свой logger
+	router.Use(middleware.Recoverer) // Если где-то внутри сервера (обработчика запроса) произойдет паника, приложение не должно упасть
+	router.Use(middleware.URLFormat) // Парсер URLов поступающих запросов
 }
 
 func setupLogger(env string) *slog.Logger {
